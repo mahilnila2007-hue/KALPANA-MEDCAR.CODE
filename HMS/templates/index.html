@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KALPANA MEDCARE - Enhanced System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Top Header in empty space -->
+    <div class="top-header-space" id="topHeaderSpace" style="display: none;">
+        <div class="top-header-content">
+            <div>
+                <h1 class="top-title">KALPANA MEDCARE</h1>
+                <h2 class="top-welcome" id="topWelcomeMessage">Welcome back</h2>
+            </div>
+            <button onclick="logout()" class="btn btn-secondary top-logout">🚪 Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Login Section -->
+        <div id="loginSection" class="section active">
+            <div class="login-form">
+                <h1>KALPANA MEDCARE</h1>
+                <p class="subtitle">
+                    Comprehensive Healthcare Data Management System
+                </p>
+                
+                <!-- Login/Register Toggle -->
+                <div class="auth-toggle">
+                    <button type="button" id="loginToggle" class="toggle-btn active" onclick="toggleAuthMode('login')">Login</button>
+                    <button type="button" id="registerToggle" class="toggle-btn" onclick="toggleAuthMode('register')">Register</button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="loginFormContainer" class="auth-form-container">
+                    <form id="loginForm" onsubmit="event.preventDefault(); login();">
+                        <div class="form-group">
+                            <label for="username">Email / Phone / Name:</label>
+                            <input type="text" id="username" required placeholder="Enter email, phone number, or full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <input type="password" id="password" required placeholder="Enter password">
+                        </div>
+                        <button type="submit" class="btn">🔐 Login</button>
+                        <div class="auth-links">
+                            <a href="#" onclick="showForgotPassword()" class="forgot-password-link">Forgot Password?</a>
+                        </div>
+                        <p class="login-hint">You can login using your email address, phone number, or full name</p>
+                    </form>
+                </div>
+
+                <!-- Registration Form -->
+                <div id="registerFormContainer" class="auth-form-container hidden">
+                    <!-- Step 1: Basic Information -->
+                    <div id="step1" class="registration-step">
+                        <h3>Register New Account</h3>
+                        <form id="registerForm" onsubmit="event.preventDefault(); handleRegistration();">
+                            <div class="form-group">
+                                <label for="regName">Full Name:</label>
+                                <input type="text" id="regName" required placeholder="Enter your full name">
+                            </div>
+                            <div class="form-group">
+                                <label for="regEmail">Email:</label>
+                                <input type="email" id="regEmail" required placeholder="Enter your email address">
+                            </div>
+                            <div class="form-group">
+                                <label for="regPhone">Phone Number:</label>
+                                <input type="tel" id="regPhone" required placeholder="Enter 10-digit phone number" pattern="[0-9]{10}">
+                            </div>
+                            <div class="form-group">
+                                <label for="regDesignation">Designation:</label>
+                                <input type="text" id="regDesignation" required placeholder="e.g., Doctor, Nurse, Admin">
+                            </div>
+                            <button type="submit" class="btn">📧 Send OTP</button>
+                        </form>
+                    </div>
+
+                    <!-- Step 2: OTP Verification -->
+                    <div id="step2" class="registration-step hidden">
+                        <h3>Verify OTP</h3>
+                        <p class="otp-info">We've sent a verification code to <strong id="otpEmail"></strong></p>
+                        <form id="otpForm" onsubmit="event.preventDefault(); verifyOtp();">
+                            <div class="form-group">
+                                <label for="otpCode">Enter OTP:</label>
+                                <input type="text" id="otpCode" required placeholder="Enter 6-digit OTP" maxlength="6" pattern="[0-9]{6}">
+                            </div>
+                            <div class="otp-actions">
+                                <button type="submit" class="btn">✅ Verify OTP</button>
+                                <button type="button" id="resendOtp" class="btn btn-secondary" onclick="resendOtp()">🔄 Resend OTP</button>
+                            </div>
+                        </form>
+                        <div class="otp-timer">
+                            Time remaining: <span id="otpTimer">10:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Set Password -->
+                    <div id="step3" class="registration-step hidden">
+                        <h3>Set Password</h3>
+                        <p class="success-info">Email verified successfully! Now create your password.</p>
+                        <form id="passwordForm" onsubmit="event.preventDefault(); completeRegistration();">
+                            <div class="form-group">
+                                <label for="regPassword">New Password:</label>
+                                <input type="password" id="regPassword" required placeholder="Enter new password" minlength="8">
+                                <small class="password-hint">Password must be at least 8 characters long</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="regConfirmPassword">Confirm Password:</label>
+                                <input type="password" id="regConfirmPassword" required placeholder="Confirm your password">
+                            </div>
+                            <button type="submit" class="btn">🔒 Complete Registration</button>
+                        </form>
+                    </div>
+
+                    <!-- Step 4: Success -->
+                    <div id="step4" class="registration-step hidden">
+                        <div class="success-message">
+                            <h3>🎉 Registration Successful!</h3>
+                            <p>Your account has been created successfully. You can now login with your credentials.</p>
+                            <button type="button" class="btn" onclick="goToLogin()">🔐 Go to Login</button>
+                        </div>
+                    </div>
+                </div>
+
+                    <!-- Registration Success -->
+                    <div id="registrationSuccess" class="registration-step hidden">
+                        <div class="success-message">
+                            <h3>🎉 Registration Successful!</h3>
+                            <p>Your account has been created successfully. You can now login with your credentials.</p>
+                            <button type="button" class="btn" onclick="showLoginForm()">Go to Login</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forgot Password Section -->
+        <div id="forgotPasswordSection" class="section">
+            <div class="login-form">
+                <h1>🔒 Reset Password</h1>
+                <p class="subtitle">
+                    Enter your email to reset your password
+                </p>
+
+                <!-- Step 1: Email Verification -->
+                <div id="forgotStep1" class="forgot-step">
+                    <form id="forgotEmailForm" onsubmit="event.preventDefault(); sendResetOTP();">
+                        <div class="form-group">
+                            <label for="resetEmail">Email Address:</label>
+                            <input type="email" id="resetEmail" required placeholder="Enter your registered email">
+                        </div>
+                        <button type="submit" class="btn">📧 Send Reset Code</button>
+                        <div class="auth-links">
+                            <a href="#" onclick="showLoginForm()" class="back-to-login">← Back to Login</a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 2: OTP Verification -->
+                <div id="forgotStep2" class="forgot-step hidden">
+                    <form id="resetOtpForm" onsubmit="event.preventDefault(); verifyResetOTP();">
+                        <div class="form-group">
+                            <label for="resetOtp">Enter 6-digit code:</label>
+                            <input type="text" id="resetOtp" required placeholder="Enter verification code" maxlength="6" pattern="[0-9]{6}">
+                        </div>
+                        <div class="otp-actions">
+                            <button type="submit" class="btn">✅ Verify Code</button>
+                            <button type="button" class="btn btn-secondary" onclick="resendResetOTP()" id="resendResetBtn">🔄 Resend Code</button>
+                        </div>
+                        <div class="otp-timer">
+                            <span id="resetOtpTimer">Code expires in: 10:00</span>
+                        </div>
+                        <div class="auth-links">
+                            <a href="#" onclick="showForgotStep(1)" class="back-link">← Change Email</a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 3: New Password -->
+                <div id="forgotStep3" class="forgot-step hidden">
+                    <form id="newPasswordForm" onsubmit="event.preventDefault(); resetPassword();">
+                        <div class="form-group">
+                            <label for="newPassword">New Password:</label>
+                            <input type="password" id="newPassword" required placeholder="Enter new password" minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmNewPassword">Confirm New Password:</label>
+                            <input type="password" id="confirmNewPassword" required placeholder="Confirm new password" minlength="6">
+                        </div>
+                        <button type="submit" class="btn">🔐 Reset Password</button>
+                    </form>
+                </div>
+
+                <!-- Step 4: Success Message -->
+                <div id="forgotStep4" class="forgot-step hidden">
+                    <div class="success-message">
+                        <h3>✅ Password Reset Successful!</h3>
+                        <p>Your password has been reset successfully. You can now login with your new password.</p>
+                        <button type="button" class="btn" onclick="showLoginForm()">Go to Login</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Menu Section -->
+        <div id="mainMenu" class="section">
+            <div class="container">
+                <div class="nav-menu">
+                    <button class="nav-btn" onclick="showSection('patientSection')">
+                        👥 Add New Patient
+                    </button>
+                    <button class="nav-btn" onclick="showSection('medicalRecordsSection')">
+                        📋 Patient Medical Records
+                    </button>
+                    <button class="nav-btn" onclick="showSection('scheduleSection')">
+                        📅 Doctor's Visit Schedule
+                    </button>
+                </div>
+
+                <div class="quick-actions">
+                    <div class="quick-action-btn" onclick="showSection('patientSection')">
+                        <span class="quick-action-icon">👤</span>
+                        <div>Add New Patient</div>
+                    </div>
+                    <div class="quick-action-btn" onclick="showSection('scheduleSection')">
+                        <span class="quick-action-icon">📋</span>
+                        <div>Book Appointment</div>
+                    </div>
+                    <div class="quick-action-btn" onclick="exportAllData()">
+                        <span class="quick-action-icon">📁</span>
+                        <div>Export Data</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Details Section (Add New Patient) -->
+        <div id="patientSection" class="section">
+            <div class="header">
+                <div>
+                    <h1>Add New Patient</h1>
+                    <p class="welcome-text">Register new patient information</p>
+                </div>
+                <div>
+                    <button onclick="showSection('mainMenu')" class="btn btn-secondary">🏠 Home</button>
+                    <button onclick="logout()" class="btn btn-secondary">🚪 Logout</button>
+                </div>
+            </div>
+
+            <!-- Add Patient Form -->
+            <div class="form-container">
+                <h2 id="patientFormTitle">➕ Add New Patient</h2>
+                <form id="patientForm">
+                    <input type="hidden" id="editPatientId" value="">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number:</label>
+                            <input type="text" id="serialNumber" required placeholder="Enter serial number">
+                        </div>
+                        <div class="form-group">
+                            <label for="patientName">Patient Name:</label>
+                            <input type="text" id="patientName" required placeholder="Enter patient name">
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNumber">Phone Number:</label>
+                            <input type="tel" id="phoneNumber" required placeholder="Enter phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="age">Age:</label>
+                            <input type="number" id="age" required min="1" max="120" placeholder="Enter age">
+                        </div>
+                        <div class="form-group">
+                            <label for="timesOfVisit">Times of Visit:</label>
+                            <input type="number" id="timesOfVisit" required min="1" value="1" placeholder="Number of visits">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="problem">Problem/Symptoms:</label>
+                        <div class="symptoms-container">
+                            <select id="predefinedSymptoms" onchange="addPredefinedSymptom()" title="Select common symptoms">
+                                <option value="">Select common symptoms...</option>
+                                <option value="Fever">Fever</option>
+                                <option value="Cough">Cough</option>
+                                <option value="Cold">Cold</option>
+                                <option value="Headache">Headache</option>
+                                <option value="Body Pain">Body Pain</option>
+                                <option value="Stomach Ache">Stomach Ache</option>
+                                <option value="Throat Pain">Throat Pain</option>
+                                <option value="Chest Pain">Chest Pain</option>
+                                <option value="Shortness of Breath">Shortness of Breath</option>
+                                <option value="Nausea">Nausea</option>
+                                <option value="Vomiting">Vomiting</option>
+                                <option value="Diarrhea">Diarrhea</option>
+                                <option value="Constipation">Constipation</option>
+                                <option value="Dizziness">Dizziness</option>
+                                <option value="Fatigue">Fatigue</option>
+                                <option value="Loss of Appetite">Loss of Appetite</option>
+                                <option value="Skin Rash">Skin Rash</option>
+                                <option value="Joint Pain">Joint Pain</option>
+                                <option value="Back Pain">Back Pain</option>
+                                <option value="High Blood Pressure">High Blood Pressure</option>
+                                <option value="Diabetes">Diabetes</option>
+                                <option value="Insomnia">Insomnia</option>
+                                <option value="Anxiety">Anxiety</option>
+                                <option value="Depression">Depression</option>
+                            </select>
+                            <button type="button" onclick="clearSymptoms()" class="btn btn-small btn-secondary">Clear</button>
+                        </div>
+                        <textarea id="problem" required placeholder="Describe the patient's problem or symptoms"></textarea>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label>Sex:</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="male" name="sex" onchange="handleSexChange('male')">
+                                    <label for="male">Male</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="female" name="sex" onchange="handleSexChange('female')">
+                                    <label for="female">Female</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Marital Status:</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="married" name="marital" onchange="handleMaritalChange('married')">
+                                    <label for="married">Married</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="unmarried" name="marital" onchange="handleMaritalChange('unmarried')">
+                                    <label for="unmarried">Unmarried</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="center-buttons">
+                        <button type="submit" class="btn" id="submitPatientBtn">Add Patient</button>
+                        <button type="button" onclick="clearPatientForm()" class="btn btn-secondary">Clear Form</button>
+                        <button type="button" onclick="cancelEdit()" class="btn btn-danger hidden" id="cancelEditBtn">Cancel Edit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Patient Medical Records Section -->
+        <div id="medicalRecordsSection" class="section">
+            <div class="header">
+                <div>
+                    <h1>Patient Medical Records</h1>
+                    <p class="welcome-text">View and manage patient records</p>
+                </div>
+                <div>
+                    <button onclick="showSection('mainMenu')" class="btn btn-secondary">🏠 Home</button>
+                    <button onclick="logout()" class="btn btn-secondary">🚪 Logout</button>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalPatients">0</div>
+                    <div class="stat-label">Total Patients</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalVisits">0</div>
+                    <div class="stat-label">Total Visits</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avgVisits">0</div>
+                    <div class="stat-label">Avg Visits/Patient</div>
+                </div>
+            </div>
+
+            <!-- Export Button -->
+            <div class="export-center">
+                <button type="button" onclick="exportPatientData()" class="btn btn-success">📊 Export Patient Data</button>
+            </div>
+
+            <!-- Patient List -->
+            <div>
+                <h2>📋 All Patient Records</h2>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Serial No.</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Age</th>
+                                <th>Sex</th>
+                                <th>Marital Status</th>
+                                <th>Problem</th>
+                                <th>Visits</th>
+                                <th>Date Added</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medicalRecordsTableBody">
+                            <!-- Patient records will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctor's Visit Schedule Section -->
+        <div id="scheduleSection" class="section">
+            <div class="header">
+                <div>
+                    <h1>Doctor's Visit Schedule</h1>
+                    <p class="welcome-text">Manage appointments and visit timings</p>
+                </div>
+                <div>
+                    <button onclick="showSection('mainMenu')" class="btn btn-secondary">🏠 Home</button>
+                    <button onclick="logout()" class="btn btn-secondary">🚪 Logout</button>
+                </div>
+            </div>
+
+            <!-- Quick Schedule Actions -->
+            <div class="quick-actions">
+                <div class="quick-action-btn" onclick="showTodaySchedule()">
+                    <span class="quick-action-icon">📅</span>
+                    <div>Today's Schedule</div>
+                </div>
+                <div class="quick-action-btn" onclick="showWeeklySchedule()">
+                    <span class="quick-action-icon">📊</span>
+                    <div>Weekly View</div>
+                </div>
+                <div class="quick-action-btn" onclick="showAvailableSlots()">
+                    <span class="quick-action-icon">🕒</span>
+                    <div>Available Slots</div>
+                </div>
+                <div class="quick-action-btn" onclick="exportScheduleData()">
+                    <span class="quick-action-icon">📁</span>
+                    <div>Export Schedule</div>
+                </div>
+            </div>
+
+            <!-- Appointment Booking Form -->
+            <div class="form-container">
+                <h2>📋 Book New Appointment</h2>
+                <form id="appointmentForm">
+                    <div class="schedule-controls">
+                        <div class="form-group">
+                            <label for="appointmentDate">Date:</label>
+                            <input type="date" id="appointmentDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointmentTime">Time:</label>
+                            <input type="time" id="appointmentTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointmentPatient">Select Patient:</label>
+                            <div class="search-container">
+                                <input type="text" id="patientSearch" class="search-input" placeholder="Search by name or phone number..." onkeyup="searchPatients()">
+                                <div id="searchResults" class="search-results"></div>
+                                <select id="appointmentPatient" required class="patient-select-spacing">
+                                    <option value="">Select a patient</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointmentDuration">Duration (minutes):</label>
+                            <select id="appointmentDuration" required>
+                                <option value="15">15 minutes</option>
+                                <option value="30" selected>30 minutes</option>
+                                <option value="45">45 minutes</option>
+                                <option value="60">60 minutes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="appointmentNotes">Appointment Notes:</label>
+                        <textarea id="appointmentNotes" placeholder="Additional notes or special instructions"></textarea>
+                    </div>
+
+                    <div class="center-buttons">
+                        <button type="submit" class="btn">📅 Book Appointment</button>
+                        <button type="button" onclick="clearAppointmentForm()" class="btn btn-secondary">Clear Form</button>
+                        <button type="button" onclick="checkAvailability()" class="btn btn-success">🔍 Check Availability</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Schedule Display -->
+            <div class="form-container">
+                <h2 id="scheduleTitle">📊 Today's Schedule</h2>
+                <div id="scheduleContent">
+                    <div id="appointmentsList">
+                        <!-- Appointments will be displayed here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Slots Overview -->
+            <div class="form-container">
+                <h2>🕒 Time Slots Overview - <span id="timeSlotsDate">Today</span></h2>
+                <div class="time-slots-controls">
+                    <input type="date" id="timeSlotsDatePicker" onchange="generateTimeSlots()" class="time-slots-date-picker" title="Select date for time slots">
+                    <button onclick="addCustomTimeSlot()" class="btn btn-success custom-slot-btn">➕ Add Custom Slot</button>
+                </div>
+                <div id="timeSlotsContainer" class="time-slots-grid">
+                    <!-- Time slots will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mini Footer -->
+    <footer class="mini-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Kalpana MedCare. All rights reserved.</p>
+            <p>Healthcare Management System | Secure & Reliable | Created by MAHIL RAM E K </p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
